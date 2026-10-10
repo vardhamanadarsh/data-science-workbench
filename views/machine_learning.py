@@ -14,6 +14,7 @@ from core.model_training import (
     detect_task, eligible_features, model_specs, ranked, results_table, train_models,
 )
 from core.tuning import history_fig, is_tunable, param_importance_fig, tune_model
+from utils.explainer import help_popover
 from utils.optional_imports import install_hint, is_available
 
 st.title("🤖 Machine Learning")
@@ -72,6 +73,8 @@ if clf:
                    "below, and look at F1 and ROC-AUC rather than accuracy.")
     elif level == "moderate":
         st.warning(f"Class imbalance detected (ratio {ratio:.1f}:1). Class weights may help.")
+    if level in ("moderate", "severe"):
+        help_popover("Class imbalance ratio", ratio)
     if dist.height == 2:
         names = dist["class"].to_list()
         positive = st.selectbox("Positive class (used for precision, recall and F1)", names,
@@ -180,6 +183,34 @@ with tab_board:
                + (" Multiclass metrics are weighted averages." if run.task == "classification" and len(run.classes) > 2 else ""))
     if best is not None:
         st.success(f"Best model: **{best.name}**")
+
+        # Metrics of the best model, each with a plain-English help button
+        if best.name != "Baseline":
+            base = next((r for r in run.results if r.name == "Baseline" and r.ok), None)
+            bt = base.test if base is not None else {}
+            if run.task == "classification":
+                wanted = [("F1", {"baseline": bt.get("F1")}), ("ROC-AUC", {}),
+                          ("Accuracy", {"majority_share": bt.get("Accuracy")}),
+                          ("Precision", {}), ("Recall", {})]
+            else:
+                wanted = [("RMSE", {"baseline": bt.get("RMSE")}), ("R2", {}), ("MAE", {})]
+            shown = [(t, ctx) for t, ctx in wanted if best.test.get(t) is not None]
+            if shown:
+                st.write(f"Test scores of {best.name}")
+                mcols = st.columns(len(shown) + 2)
+                for col, (term, ctx) in zip(mcols, shown):
+                    value = float(best.test[term])
+                    col.metric(term, f"{value:.3f}")
+                    with col:
+                        help_popover(term, value, **{k: v for k, v in ctx.items() if v is not None})
+                mcols[-2].markdown("**Baseline**")
+                with mcols[-2]:
+                    help_popover("Baseline")
+                if run.config.cv_folds >= 2:
+                    mcols[-1].markdown("**Cross-validation**")
+                    with mcols[-1]:
+                        help_popover("Cross-validation")
+
         if st.button(f"Use {best.name} for the next steps"):
             st.session_state["selected_model"] = best.name
         if st.session_state.get("selected_model"):
@@ -220,6 +251,7 @@ with tab_imp:
         res = next(r for r in ok_results if r.name == name)
         st.caption("Permutation importance: how much the test score drops when one column is shuffled. "
                    "Uses at most 1,000 test rows.")
+        help_popover("Permutation importance")
         if st.button("Compute importance"):
             try:
                 with st.spinner("Shuffling columns..."):
@@ -326,7 +358,7 @@ with tab_save:
         save_name = st.selectbox("Model to save", names, index=default, key="ml_save_model")
         note = st.text_input("Note (optional)", key="ml_save_note")
         st.caption("Saves the settings, features, preprocessing steps, hyperparameters and metrics. "
-                   "The model file itself is saved in a later phase.")
+                   "The model file itself can be saved in Reports & Export.")
         if st.button("Save experiment", type="primary"):
             res = next(r for r in ok_results if r.name == save_name)
             history = st.session_state.get("history")
