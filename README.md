@@ -96,3 +96,5 @@ tests/            pytest suite
 - Explanations (SHAP, counterfactuals) describe model behaviour, not real-world causes.
 
 ## Licence
+
+MIT. See the LICENSE file.
