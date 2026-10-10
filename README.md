@@ -32,7 +32,10 @@ compare datasets for drift, and export a report. Free and open-source tools only
 
 ## Quick start
 
-Requires [uv](https://docs.astral.sh/uv/) and Python 3.11.
+**No Python needed (Windows):** download the ZIP from GitHub, unzip it, and double-click `run.bat`.
+The first start downloads about 1.2 GB and takes several minutes. Later starts are fast.
+
+**With Python:** requires [uv](https://docs.astral.sh/uv/) and Python 3.11.
 
 ```bash
 uv sync --extra ml --extra automl --extra explain --extra reports
@@ -40,6 +43,8 @@ uv run streamlit run app.py
 ```
 
 Open http://localhost:8501 and try one of the demo datasets from the Data Upload page.
+
+> If an online demo is available, do not upload sensitive data to it. For private data, run the app on your own computer.
 
 ## Optional extras
 
@@ -83,6 +88,7 @@ docker build --build-arg EXTRAS="--extra ml --extra explain --extra reports --ex
 ```
 app.py            entry point and navigation
 config.py         typed settings
+run.bat           one-click launcher for Windows
 core/             analysis logic, no UI code (testable on its own)
 views/            one Streamlit page per file
 visualization/    plot builders and themes
@@ -94,6 +100,8 @@ tests/            pytest suite
 
 - Trained models and plots are not stored in project files. Save models separately as `.skops` files.
 - Explanations (SHAP, counterfactuals) describe model behaviour, not real-world causes.
+- Time series and econometrics are not part of this version.
+- `run.bat` works on Windows only and needs internet on the first start.
 
 ## Licence
 
