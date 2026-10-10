@@ -94,8 +94,5 @@ tests/            pytest suite
 
 - Trained models and plots are not stored in project files. Save models separately as `.skops` files.
 - Explanations (SHAP, counterfactuals) describe model behaviour, not real-world causes.
-- Time series and econometrics are not part of this version.
 
 ## Licence
-
-Add a licence of your choice (MIT is common for portfolio projects).
