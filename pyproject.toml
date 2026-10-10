@@ -1,0 +1,49 @@
+[project]
+name = "workbench"
+version = "0.1.0"
+description = "Modular, local-first Data Science Workbench built with Streamlit"
+readme = "README.md"
+requires-python = ">=3.11"
+
+# CORE (Lite profile): small and fast
+dependencies = [
+    "streamlit>=1.40",
+    "polars>=1.0",
+    "duckdb>=1.0",
+    "pyarrow>=15.0",
+    "pandas>=2.1",
+    "numpy>=1.26",
+    "plotly>=5.20",
+    "kaleido==0.2.1",          # static PNG/SVG/PDF export (bundles its own browser engine)
+    "scikit-learn>=1.4",
+    "statsmodels>=0.14",
+    "scipy>=1.11",
+    "narwhals>=1.0",
+    "openpyxl>=3.1",           # .xlsx
+    "xlrd>=2.0",               # .xls
+    "pydantic-settings>=2.2",
+    "loguru>=0.7",
+    "psutil>=5.9",
+]
+
+[project.optional-dependencies]
+ml          = ["xgboost>=2.0", "lightgbm>=4.3", "imbalanced-learn>=0.12", "optuna>=3.6"]
+explain     = ["shap>=0.45"]
+automl      = ["flaml[automl]>=2.1"]
+quality     = ["pandera[polars]>=0.20", "ydata-profiling>=4.8", "evidently>=0.4", "missingno>=0.5"]
+explore     = ["pygwalker>=0.4"]
+reports     = ["jinja2>=3.1", "xlsxwriter>=3.2", "skops>=0.10"]
+causal      = ["dowhy>=0.11"]
+
+[dependency-groups]
+dev = ["pytest>=8.0", "hypothesis>=6.100", "ruff>=0.5", "mypy>=1.10", "pre-commit>=3.7"]
+
+[tool.uv]
+package = false   # this is an app, not a library: only install dependencies
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
